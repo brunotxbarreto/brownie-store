@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrownieManager - Gestão para Produção de Brownies</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #8B4513;
+            --secondary-color: #D2691E;
+            --accent-color: #F4A460;
+            --light-brown: #DEB887;
+        }
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-custom {
+            background-color: var(--primary-color);
+        }
+        .btn-custom {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .card-header-custom {
+            background-color: var(--accent-color);
+            font-weight: bold;
+        }
+        .sidebar {
+            background-color: var(--light-brown);
+            height: 100vh;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar .nav-link {
+            color: #333;
+            padding: 12px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--accent-color);
+            color: #000;
+        }
+        .content {
+            padding: 20px;
+            background-color: white;
+            min-height: 100vh;
+        }
+        .dashboard-card {
+            transition: transform 0.3s;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: var(--accent-color);
+        }
+        .positive-value {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .negative-value {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 sidebar p-0">
+                <div class="text-center mb-4 mt-3">
+                    <h4><i class="bi bi-star-fill"></i> BrownieManager</h4>
+                </div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard" data-bs-toggle="tab">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#estoque" data-bs-toggle="tab">
+                            <i class="bi bi-box-seam me-2"></i>Estoque
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#vendas" data-bs-toggle="tab">
+                            <i class="bi bi-currency-dollar me-2"></i>Vendas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#despesas" data-bs-toggle="tab">
+                            <i class="bi bi-cash-coin me-2"></i>Despesas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#relatorios" data-bs-toggle="tab">
+                            <i class="bi bi-bar-chart me-2"></i>Relatórios
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link" href="#sobre" data-bs-toggle="tab">
+                            <i class="bi bi-info-circle me-2"></i>Sobre
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Conteúdo Principal -->
+            <div class="col-md-9 col-lg-10 content">
+                <div class="tab-content">
+                    <!-- Dashboard -->
+                    <div class="tab-pane fade show active" id="dashboard">
+                        <h2 class="section-title">Dashboard</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="card dashboard-card">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-wallet2 display-6 mb-2" style="color: var(--primary-color);"></i>
+                                        <h5 class="card-title">Saldo Atual</h5>
+                                        <h3 class="card-text" id="saldo-atual">R$ 0,00</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="card dashboard-card">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-graph-up display-6 mb-2" style="color: var(--primary-color);"></i>
+                                        <h5 class="card-title">Lucro do Mês</h5>
+                                        <h3 class="card-text" id="lucro-mes">R$ 0,00</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="card dashboard-card">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-bag display-6 mb-2" style="color: var(--primary-color);"></i>
+                                        <h5 class="card-title">Vendas do Mês</h5>
+                                        <h3 class="card-text" id="vendas-mes">R$ 0,00</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="card dashboard-card">
+                                    <div class="card-body text-center">
+                                        <i class="bi bi-currency-exchange display-6 mb-2" style="color: var(--primary-color);"></i>
+                                        <h5 class="card-title">Despesas do Mês</h5>
+                                        <h3 class="card-text" id="despesas-mes">R$ 0,00</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Fluxo de Caixa (Últimos 7 dias)</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="fluxo-caixa-chart" height="250"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Distribuição de Custos</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="custos-chart" height="250"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Últimas Transações</h5>
+                                <div>
+                                    <select class="form-select form-select-sm" id="periodo-select">
+                                        <option value="7">Últimos 7 dias</option>
+                                        <option value="15">Últimos 15 dias</option>
+                                        <option value="30">Últimos 30 dias</option>
+                                        <option value="0">Todo o período</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Data</th>
+                                                <th>Descrição</th>
+                                                <th>Categoria</th>
+                                                <th>Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="transacoes-table">
+                                            <!-- Transações serão inseridas aqui via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estoque -->
+                    <div class="tab-pane fade" id="estoque">
+                        <h2 class="section-title">Gestão de Estoque</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Adicionar Ingrediente</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="form-ingrediente">
+                                            <div class="mb-3">
+                                                <label for="nome-ingrediente" class="form-label">Nome do Ingrediente</label>
+                                                <input type="text" class="form-control" id="nome-ingrediente" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="quantidade-ingrediente" class="form-label">Quantidade</label>
+                                                <input type="number" class="form-control" id="quantidade-ingrediente" step="0.01" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="unidade-ingrediente" class="form-label">Unidade de Medida</label>
+                                                <select class="form-select" id="unidade-ingrediente" required>
+                                                    <option value="g">Gramas (g)</option>
+                                                    <option value="kg">Quilogramas (kg)</option>
+                                                    <option value="un">Unidades</option>
+                                                    <option value="ml">Mililitros (ml)</option>
+                                                    <option value="l">Litros (l)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="custo-ingrediente" class="form-label">Custo Unitário (R$)</label>
+                                                <input type="number" class="form-control" id="custo-ingrediente" step="0.01" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-custom w-100">Adicionar Ingrediente</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Lista de Ingredientes</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Ingrediente</th>
+                                                        <th>Quantidade</th>
+                                                        <th>Custo Unitário</th>
+                                                        <th>Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="ingredientes-table">
+                                                    <!-- Ingredientes serão inseridos aqui via JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vendas -->
+                    <div class="tab-pane fade" id="vendas">
+                        <h2 class="section-title">Registro de Vendas</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Nova Venda</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="form-venda">
+                                            <div class="mb-3">
+                                                <label for="data-venda" class="form-label">Data da Venda</label>
+                                                <input type="date" class="form-control" id="data-venda" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="tipo-brownie" class="form-label">Tipo de Brownie</label>
+                                                <input type="text" class="form-control" id="tipo-brownie" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="quantidade-venda" class="form-label">Quantidade</label>
+                                                <input type="number" class="form-control" id="quantidade-venda" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="preco-unitario" class="form-label">Preço Unitário (R$)</label>
+                                                <input type="number" class="form-control" id="preco-unitario" step="0.01" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="custo-venda" class="form-label">Custo Unitário (R$)</label>
+                                                <input type="number" class="form-control" id="custo-venda" step="0.01" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-custom w-100">Registrar Venda</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Histórico de Vendas</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Data</th>
+                                                        <th>Produto</th>
+                                                        <th>Quantidade</th>
+                                                        <th>Valor Total</th>
+                                                        <th>Lucro</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="vendas-table">
+                                                    <!-- Vendas serão inseridas aqui via JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Despesas -->
+                    <div class="tab-pane fade" id="despesas">
+                        <h2 class="section-title">Registro de Despesas</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Nova Despesa</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="form-despesa">
+                                            <div class="mb-3">
+                                                <label for="data-despesa" class="form-label">Data da Despesa</label>
+                                                <input type="date" class="form-control" id="data-despesa" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="descricao-despesa" class="form-label">Descrição</label>
+                                                <input type="text" class="form-control" id="descricao-despesa" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="categoria-despesa" class="form-label">Categoria</label>
+                                                <select class="form-select" id="categoria-despesa" required>
+                                                    <option value="ingredientes">Ingredientes</option>
+                                                    <option value="embalagem">Embalagem</option>
+                                                    <option value="energia">Energia</option>
+                                                    <option value="gas">Gás</option>
+                                                    <option value="outros">Outros</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="valor-despesa" class="form-label">Valor (R$)</label>
+                                                <input type="number" class="form-control" id="valor-despesa" step="0.01" required>
+                                            </div>
+                                            <button type="submit" class="btn btn-custom w-100">Registrar Despesa</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Histórico de Despesas</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Data</th>
+                                                        <th>Descrição</th>
+                                                        <th>Categoria</th>
+                                                        <th>Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="despesas-table">
+                                                    <!-- Despesas serão inseridas aqui via JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Relatórios -->
+                    <div class="tab-pane fade" id="relatorios">
+                        <h2 class="section-title">Relatórios</h2>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Filtros</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="data-inicio" class="form-label">Data Início</label>
+                                            <input type="date" class="form-control" id="data-inicio">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="data-fim" class="form-label">Data Fim</label>
+                                            <input type="date" class="form-control" id="data-fim">
+                                        </div>
+                                        <button class="btn btn-custom w-100" id="gerar-relatorio">Gerar Relatório</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-header card-header-custom">
+                                        <h5 class="mb-0">Resumo do Período</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="resumo-periodo">
+                                            <p>Selecione um período para gerar o relatório.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card mb-4">
+                            <div class="card-header card-header-custom">
+                                <h5 class="mb-0">Projeção de Faturamento</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="projecao-chart" height="100"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sobre -->
+                    <div class="tab-pane fade" id="sobre">
+                        <h2 class="section-title">Sobre o BrownieManager</h2>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Sistema de Gestão para Produção e Venda de Brownies</h5>
+                                <p class="card-text">
+                                    Este sistema foi desenvolvido para atender às necessidades de pequenos empreendedores 
+                                    do ramo de produção e venda de brownies, oferecendo ferramentas para:
+                                </p>
+                                <ul>
+                                    <li>Controle de estoque de ingredientes</li>
+                                    <li>Registro de vendas e despesas</li>
+                                    <li>Cálculo de custos, margem de lucro e lucro líquido</li>
+                                    <li>Gestão de fluxo de caixa</li>
+                                    <li>Projeções de faturamento e custos</li>
+                                </ul>
+                                <p class="card-text">
+                                    <strong>Armazenamento de dados:</strong> Todas as informações ficam salvas localmente 
+                                    no seu navegador, não sendo necessária conexão com a internet após o carregamento inicial.
+                                </p>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> Para garantir que seus dados não sejam perdidos, 
+                                    evite limpar o histórico e os dados de navegação do seu navegador.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Inicialização dos dados
+        let estoque = JSON.parse(localStorage.getItem('estoque')) || [];
+        let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
+        let despesas = JSON.parse(localStorage.getItem('despesas')) || [];
+        
+        // Inicialização da data atual no formato YYYY-MM-DD
+        const hoje = new Date();
+        document.getElementById('data-venda').valueAsDate = hoje;
+        document.getElementById('data-despesa').valueAsDate = hoje;
+        
+        // Formatador de moeda
+        const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+        
+        // Funções de utilidade
+        function formatarData(data) {
+            return new Date(data).toLocaleDateString('pt-BR');
+        }
+        
+        function calcularTotalVendas() {
+            return vendas.reduce((total, venda) => total + (venda.quantidade * venda.precoUnitario), 0);
+        }
+        
+        function calcularTotalDespesas() {
+            return despesas.reduce((total, despesa) => total + despesa.valor, 0);
+        }
+        
+        function calcularLucro() {
+            const totalVendas = calcularTotalVendas();
+            const totalDespesas = calcularTotalDespesas();
+            return totalVendas - totalDespesas;
+        }
+        
+        function calcularSaldo() {
+            return calcularLucro(); // Simplificado para este MVP
+        }
+        
+        function atualizarDashboard() {
+            document.getElementById('saldo-atual').textContent = formatadorMoeda.format(calcularSaldo());
+            document.getElementById('lucro-mes').textContent = formatadorMoeda.format(calcularLucro());
+            document.getElementById('vendas-mes').textContent = formatadorMoeda.format(calcularTotalVendas());
+            document.getElementById('despesas-mes').textContent = formatadorMoeda.format(calcularTotalDespesas());
+            
+            atualizarTabelaTransacoes();
+            atualizarGraficos();
+        }
+        
+        function atualizarTabelaTransacoes() {
+            const tabela = document.getElementById('transacoes-table');
+            const periodo = parseInt(document.getElementById('periodo-select').value);
+            
+            // Combinar vendas e despesas em transações
+            let transacoes = [
+                ...vendas.map(v => ({ ...v, tipo: 'venda', valor: v.quantidade * v.precoUnitario })),
+                ...despesas.map(d => ({ ...d, tipo: 'despesa' }))
+            ];
+            
+            // Ordenar por data (mais recente primeiro)
+            transacoes.sort((a, b) => new Date(b.data) - new Date(a.data));
+            
+            // Filtrar por período, se necessário
+            if (periodo > 0) {
+                const dataLimite = new Date();
+                dataLimite.setDate(dataLimite.getDate() - periodo);
+                transacoes = transacoes.filter(t => new Date(t.data) >= dataLimite);
+            }
+            
+            // Limitar a 10 transações para exibição
+            transacoes = transacoes.slice(0, 10);
+            
+            // Limpar tabela
+            tabela.innerHTML = '';
+            
+            // Preencher tabela
+            transacoes.forEach(transacao => {
+                const linha = document.createElement('tr');
+                
+                if (transacao.tipo === 'venda') {
+                    linha.innerHTML = `
+                        <td>${formatarData(transacao.data)}</td>
+                        <td>Venda: ${transacao.tipoBrownie}</td>
+                        <td>Venda</td>
+                        <td class="positive-value">+${formatadorMoeda.format(transacao.valor)}</td>
+                    `;
+                } else {
+                    linha.innerHTML = `
+                        <td>${formatarData(transacao.data)}</td>
+                        <td>${transacao.descricao}</td>
+                        <td>${transacao.categoria}</td>
+                        <td class="negative-value">-${formatadorMoeda.format(transacao.valor)}</td>
+                    `;
+                }
+                
+                tabela.appendChild(linha);
+            });
+        }
+        
+        function atualizarGraficos() {
+            // Dados para o gráfico de fluxo de caixa (últimos 7 dias)
+            const datas = [];
+            const saldos = [];
+            
+            for (let i = 6; i >= 0; i--) {
+                const data = new Date();
+                data.setDate(data.getDate() - i);
+                const dataStr = data.toISOString().split('T')[0];
+                
+                const vendasDia = vendas
+                    .filter(v => v.data === dataStr)
+                    .reduce((total, v) => total + (v.quantidade * v.precoUnitario), 0);
+                    
+                const despesasDia = despesas
+                    .filter(d => d.data === dataStr)
+                    .reduce((total, d) => total + d.valor, 0);
+                    
+                datas.push(formatarData(dataStr));
+                saldos.push(vendasDia - despesasDia);
+            }
+            
+            const ctxFluxo = document.getElementById('fluxo-caixa-chart').getContext('2d');
+            if (window.fluxoCaixaChart) {
+                window.fluxoCaixaChart.destroy();
+            }
+            window.fluxoCaixaChart = new Chart(ctxFluxo, {
+                type: 'line',
+                data: {
+                    labels: datas,
+                    datasets: [{
+                        label: 'Saldo Diário',
+                        data: saldos,
+                        borderColor: '#8B4513',
+                        backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatadorMoeda.format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatadorMoeda.format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Dados para o gráfico de distribuição de custos
+            const categorias = {};
+            despesas.forEach(despesa => {
+                if (!categorias[despesa.categoria]) {
+                    categorias[despesa.categoria] = 0;
+                }
+                categorias[despesa.categoria] += despesa.valor;
+            });
+            
+            const ctxCustos = document.getElementById('custos-chart').getContext('2d');
+            if (window.custosChart) {
+                window.custosChart.destroy();
+            }
+            window.custosChart = new Chart(ctxCustos, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(categorias),
+                    datasets: [{
+                        data: Object.values(categorias),
+                        backgroundColor: [
+                            '#8B4513', '#D2691E', '#F4A460', '#DEB887', '#CD853F'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${formatadorMoeda.format(value)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function atualizarTabelaIngredientes() {
+            const tabela = document.getElementById('ingredientes-table');
+            tabela.innerHTML = '';
+            
+            estoque.forEach((ingrediente, index) => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${ingrediente.nome}</td>
+                    <td>${ingrediente.quantidade} ${ingrediente.unidade}</td>
+                    <td>${formatadorMoeda.format(ingrediente.custoUnitario)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removerIngrediente(${index})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tabela.appendChild(linha);
+            });
+        }
+        
+        function atualizarTabelaVendas() {
+            const tabela = document.getElementById('vendas-table');
+            tabela.innerHTML = '';
+            
+            // Ordenar vendas por data (mais recente primeiro)
+            const vendasOrdenadas = [...vendas].sort((a, b) => new Date(b.data) - new Date(a.data));
+            
+            vendasOrdenadas.forEach(venda => {
+                const valorTotal = venda.quantidade * venda.precoUnitario;
+                const custoTotal = venda.quantidade * venda.custoUnitario;
+                const lucro = valorTotal - custoTotal;
+                
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${formatarData(venda.data)}</td>
+                    <td>${venda.tipoBrownie}</td>
+                    <td>${venda.quantidade}</td>
+                    <td>${formatadorMoeda.format(valorTotal)}</td>
+                    <td class="${lucro >= 0 ? 'positive-value' : 'negative-value'}">${formatadorMoeda.format(lucro)}</td>
+                `;
+                tabela.appendChild(linha);
+            });
+        }
+        
+        function atualizarTabelaDespesas() {
+            const tabela = document.getElementById('despesas-table');
+            tabela.innerHTML = '';
+            
+            // Ordenar despesas por data (mais recente primeiro)
+            const despesasOrdenadas = [...despesas].sort((a, b) => new Date(b.data) - new Date(a.data));
+            
+            despesasOrdenadas.forEach(despesa => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${formatarData(despesa.data)}</td>
+                    <td>${despesa.descricao}</td>
+                    <td>${despesa.categoria}</td>
+                    <td class="negative-value">${formatadorMoeda.format(despesa.valor)}</td>
+                `;
+                tabela.appendChild(linha);
+            });
+        }
+        
+        function removerIngrediente(index) {
+            if (confirm('Tem certeza que deseja remover este ingrediente?')) {
+                estoque.splice(index, 1);
+                localStorage.setItem('estoque', JSON.stringify(estoque));
+                atualizarTabelaIngredientes();
+            }
+        }
+        
+        // Event Listeners
+        document.getElementById('form-ingrediente').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novoIngrediente = {
+                nome: document.getElementById('nome-ingrediente').value,
+                quantidade: parseFloat(document.getElementById('quantidade-ingrediente').value),
+                unidade: document.getElementById('unidade-ingrediente').value,
+                custoUnitario: parseFloat(document.getElementById('custo-ingrediente').value)
+            };
+            
+            estoque.push(novoIngrediente);
+            localStorage.setItem('estoque', JSON.stringify(estoque));
+            
+            atualizarTabelaIngredientes();
+            this.reset();
+            
+            alert('Ingrediente adicionado com sucesso!');
+        });
+        
+        document.getElementById('form-venda').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novaVenda = {
+                data: document.getElementById('data-venda').value,
+                tipoBrownie: document.getElementById('tipo-brownie').value,
+                quantidade: parseInt(document.getElementById('quantidade-venda').value),
+                precoUnitario: parseFloat(document.getElementById('preco-unitario').value),
+                custoUnitario: parseFloat(document.getElementById('custo-venda').value)
+            };
+            
+            vendas.push(novaVenda);
+            localStorage.setItem('vendas', JSON.stringify(vendas));
+            
+            atualizarTabelaVendas();
+            atualizarDashboard();
+            this.reset();
+            document.getElementById('data-venda').valueAsDate = new Date();
+            
+            alert('Venda registrada com sucesso!');
+        });
+        
+        document.getElementById('form-despesa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novaDespesa = {
+                data: document.getElementById('data-despesa').value,
+                descricao: document.getElementById('descricao-despesa').value,
+                categoria: document.getElementById('categoria-despesa').value,
+                valor: parseFloat(document.getElementById('valor-despesa').value)
+            };
+            
+            despesas.push(novaDespesa);
+            localStorage.setItem('despesas', JSON.stringify(despesas));
+            
+            atualizarTabelaDespesas();
+            atualizarDashboard();
+            this.reset();
+            document.getElementById('data-despesa').valueAsDate = new Date();
+            
+            alert('Despesa registrada com sucesso!');
+        });
+        
+        document.getElementById('periodo-select').addEventListener('change', atualizarDashboard);
+        
+        document.getElementById('gerar-relatorio').addEventListener('click', function() {
+            const dataInicio = document.getElementById('data-inicio').value;
+            const dataFim = document.getElementById('data-fim').value;
+            
+            if (!dataInicio || !dataFim) {
+                alert('Por favor, selecione ambas as datas para gerar o relatório.');
+                return;
+            }
+            
+            // Filtrar vendas e despesas pelo período selecionado
+            const vendasPeriodo = vendas.filter(v => v.data >= dataInicio && v.data <= dataFim);
+            const despesasPeriodo = despesas.filter(d => d.data >= dataInicio && d.data <= dataFim);
+            
+            // Calcular totais
+            const totalVendas = vendasPeriodo.reduce((total, venda) => total + (venda.quantidade * venda.precoUnitario), 0);
+            const totalDespesas = despesasPeriodo.reduce((total, despesa) => total + despesa.valor, 0);
+            const lucro = totalVendas - totalDespesas;
+            const margemLucro = totalVendas > 0 ? (lucro / totalVendas) * 100 : 0;
+            
+            // Exibir resumo
+            document.getElementById('resumo-periodo').innerHTML = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Total de Vendas:</strong> ${formatadorMoeda.format(totalVendas)}</p>
+                        <p><strong>Total de Despesas:</strong> ${formatadorMoeda.format(totalDespesas)}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Lucro Líquido:</strong> <span class="${lucro >= 0 ? 'positive-value' : 'negative-value'}">${formatadorMoeda.format(lucro)}</span></p>
+                        <p><strong>Margem de Lucro:</strong> <span class="${margemLucro >= 0 ? 'positive-value' : 'negative-value'}">${margemLucro.toFixed(2)}%</span></p>
+                    </div>
+                </div>
+            `;
+            
+            // Atualizar gráfico de projeção
+            const ctxProjecao = document.getElementById('projecao-chart').getContext('2d');
+            if (window.projecaoChart) {
+                window.projecaoChart.destroy();
+            }
+            
+            // Simular projeção baseada na média diária
+            const diasNoPeriodo = Math.ceil((new Date(dataFim) - new Date(dataInicio)) / (1000 * 60 * 60 * 24)) + 1;
+            const mediaDiariaVendas = totalVendas / diasNoPeriodo;
+            
+            const datasProjecao = [];
+            const valoresProjecao = [];
+            
+            for (let i = 1; i <= 30; i++) {
+                const data = new Date();
+                data.setDate(data.getDate() + i);
+                datasProjecao.push(formatarData(data.toISOString().split('T')[0]));
+                valoresProjecao.push(mediaDiariaVendas * i);
+            }
+            
+            window.projecaoChart = new Chart(ctxProjecao, {
+                type: 'line',
+                data: {
+                    labels: datasProjecao,
+                    datasets: [{
+                        label: 'Projeção de Faturamento (próximos 30 dias)',
+                        data: valoresProjecao,
+                        borderColor: '#8B4513',
+                        backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return formatadorMoeda.format(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatadorMoeda.format(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            atualizarDashboard();
+            atualizarTabelaIngredientes();
+            atualizarTabelaVendas();
+            atualizarTabelaDespesas();
+        });
+    </script>
+</body>
+</html>
