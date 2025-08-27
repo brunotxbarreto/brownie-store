@@ -87,6 +87,24 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+        .help-icon {
+            color: var(--secondary-color);
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .example-box {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent-color);
+            padding: 10px 15px;
+            margin-top: 5px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
         @media (max-width: 768px) {
             .sidebar {
                 height: auto;
@@ -142,6 +160,10 @@
                     <!-- Dashboard -->
                     <div class="tab-pane fade show active" id="dashboard">
                         <h2 class="section-title">Dashboard</h2>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Esta é a visão geral do seu negócio. Aqui você pode ver rapidamente seu saldo, lucro, vendas e despesas do mês.
+                        </div>
+                        
                         <div class="row mb-4">
                             <div class="col-md-6 col-lg-3 mb-3">
                                 <div class="card dashboard-card">
@@ -239,6 +261,10 @@
                     <!-- Estoque -->
                     <div class="tab-pane fade" id="estoque">
                         <h2 class="section-title">Gestão de Estoque</h2>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Aqui você pode gerenciar os ingredientes utilizados na produção dos brownies. Registre cada item com sua quantidade e custo.
+                        </div>
+                        
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="card">
@@ -248,15 +274,19 @@
                                     <div class="card-body">
                                         <form id="form-ingrediente">
                                             <div class="mb-3">
-                                                <label for="nome-ingrediente" class="form-label">Nome do Ingrediente</label>
+                                                <label for="nome-ingrediente" class="form-label">Nome do Ingrediente <i class="bi bi-question-circle help-icon" title="Ex: Chocolate em pó, farinha de trigo, açúcar, etc."></i></label>
                                                 <input type="text" class="form-control" id="nome-ingrediente" required>
+                                                <div class="form-text">Nome do ingrediente utilizado na produção</div>
+                                                <div class="example-box">Ex: Chocolate em pó 50% cacau</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="quantidade-ingrediente" class="form-label">Quantidade</label>
+                                                <label for="quantidade-ingrediente" class="form-label">Quantidade <i class="bi bi-question-circle help-icon" title="Quantidade atual em estoque"></i></label>
                                                 <input type="number" class="form-control" id="quantidade-ingrediente" step="0.01" required>
+                                                <div class="form-text">Quantidade disponível em estoque</div>
+                                                <div class="example-box">Ex: 2.5 (kg, litros, unidades)</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="unidade-ingrediente" class="form-label">Unidade de Medida</label>
+                                                <label for="unidade-ingrediente" class="form-label">Unidade de Medida <i class="bi bi-question-circle help-icon" title="Selecione a unidade de medida correspondente"></i></label>
                                                 <select class="form-select" id="unidade-ingrediente" required>
                                                     <option value="g">Gramas (g)</option>
                                                     <option value="kg">Quilogramas (kg)</option>
@@ -264,10 +294,13 @@
                                                     <option value="ml">Mililitros (ml)</option>
                                                     <option value="l">Litros (l)</option>
                                                 </select>
+                                                <div class="form-text">Unidade de medida da quantidade</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="custo-ingrediente" class="form-label">Custo Unitário (R$)</label>
+                                                <label for="custo-ingrediente" class="form-label">Custo Unitário (R$) <i class="bi bi-question-circle help-icon" title="Custo por unidade de medida (ex: preço por kg)"></i></label>
                                                 <input type="number" class="form-control" id="custo-ingrediente" step="0.01" required>
+                                                <div class="form-text">Custo por unidade de medida (ex: preço por kg)</div>
+                                                <div class="example-box">Ex: 12.50 (valor por kg, litro, etc.)</div>
                                             </div>
                                             <button type="submit" class="btn btn-custom w-100">Adicionar Ingrediente</button>
                                         </form>
@@ -304,6 +337,10 @@
                     <!-- Vendas -->
                     <div class="tab-pane fade" id="vendas">
                         <h2 class="section-title">Registro de Vendas</h2>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Registre aqui cada venda realizada. Informe o tipo de brownie, quantidade, preço de venda e custo unitário para calcular automaticamente o lucro.
+                        </div>
+                        
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="card">
@@ -313,24 +350,33 @@
                                     <div class="card-body">
                                         <form id="form-venda">
                                             <div class="mb-3">
-                                                <label for="data-venda" class="form-label">Data da Venda</label>
+                                                <label for="data-venda" class="form-label">Data da Venda <i class="bi bi-question-circle help-icon" title="Data em que a venda foi realizada"></i></label>
                                                 <input type="date" class="form-control" id="data-venda" required>
+                                                <div class="form-text">Data em que a venda foi realizada</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="tipo-brownie" class="form-label">Tipo de Brownie</label>
+                                                <label for="tipo-brownie" class="form-label">Tipo de Brownie <i class="bi bi-question-circle help-icon" title="Nome ou tipo do brownie vendido"></i></label>
                                                 <input type="text" class="form-control" id="tipo-brownie" required>
+                                                <div class="form-text">Nome ou tipo do brownie vendido</div>
+                                                <div class="example-box">Ex: Brownie de chocolate tradicional, Brownie de ninho com nutella, etc.</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="quantidade-venda" class="form-label">Quantidade</label>
+                                                <label for="quantidade-venda" class="form-label">Quantidade <i class="bi bi-question-circle help-icon" title="Quantidade de unidades vendidas"></i></label>
                                                 <input type="number" class="form-control" id="quantidade-venda" required>
+                                                <div class="form-text">Número de unidades vendidas</div>
+                                                <div class="example-box">Ex: 12 (unidades)</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="preco-unitario" class="form-label">Preço Unitário (R$)</label>
+                                                <label for="preco-unitario" class="form-label">Preço Unitário (R$) <i class="bi bi-question-circle help-icon" title="Preço de venda de cada unidade"></i></label>
                                                 <input type="number" class="form-control" id="preco-unitario" step="0.01" required>
+                                                <div class="form-text">Preço de venda de cada unidade</div>
+                                                <div class="example-box">Ex: 6.50 (valor cobrado por cada brownie)</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="custo-venda" class="form-label">Custo Unitário (R$)</label>
+                                                <label for="custo-venda" class="form-label">Custo Unitário (R$) <i class="bi bi-question-circle help-icon" title="Custo de produção de cada unidade"></i></label>
                                                 <input type="number" class="form-control" id="custo-venda" step="0.01" required>
+                                                <div class="form-text">Custo de produção de cada unidade (ingredientes + embalagem)</div>
+                                                <div class="example-box">Ex: 2.80 (custo para produzir cada brownie)</div>
                                             </div>
                                             <button type="submit" class="btn btn-custom w-100">Registrar Venda</button>
                                         </form>
@@ -368,6 +414,10 @@
                     <!-- Despesas -->
                     <div class="tab-pane fade" id="despesas">
                         <h2 class="section-title">Registro de Despesas</h2>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Registre aqui todas as despesas do seu negócio, desde ingredientes até custos fixos como energia e gás. Use categorias para organizar melhor seus gastos.
+                        </div>
+                        
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <div class="card">
@@ -377,15 +427,18 @@
                                     <div class="card-body">
                                         <form id="form-despesa">
                                             <div class="mb-3">
-                                                <label for="data-despesa" class="form-label">Data da Despesa</label>
+                                                <label for="data-despesa" class="form-label">Data da Despesa <i class="bi bi-question-circle help-icon" title="Data em que a despesa foi realizada"></i></label>
                                                 <input type="date" class="form-control" id="data-despesa" required>
+                                                <div class="form-text">Data em que a despesa foi realizada</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="descricao-despesa" class="form-label">Descrição</label>
+                                                <label for="descricao-despesa" class="form-label">Descrição <i class="bi bi-question-circle help-icon" title="Descrição detalhada da despesa"></i></label>
                                                 <input type="text" class="form-control" id="descricao-despesa" required>
+                                                <div class="form-text">Descrição detalhada da despesa</div>
+                                                <div class="example-box">Ex: Compra de chocolate 50% cacau, Pagamento de conta de luz, etc.</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="categoria-despesa" class="form-label">Categoria</label>
+                                                <label for="categoria-despesa" class="form-label">Categoria <i class="bi bi-question-circle help-icon" title="Categoria para organizar suas despesas"></i></label>
                                                 <select class="form-select" id="categoria-despesa" required>
                                                     <option value="ingredientes">Ingredientes</option>
                                                     <option value="embalagem">Embalagem</option>
@@ -393,10 +446,13 @@
                                                     <option value="gas">Gás</option>
                                                     <option value="outros">Outros</option>
                                                 </select>
+                                                <div class="form-text">Categoria para organizar suas despesas</div>
                                             </div>
                                             <div class="mb-3">
-                                                <label for="valor-despesa" class="form-label">Valor (R$)</label>
+                                                <label for="valor-despesa" class="form-label">Valor (R$) <i class="bi bi-question-circle help-icon" title="Valor total da despesa"></i></label>
                                                 <input type="number" class="form-control" id="valor-despesa" step="0.01" required>
+                                                <div class="form-text">Valor total da despesa</div>
+                                                <div class="example-box">Ex: 45.90 (valor total pago)</div>
                                             </div>
                                             <button type="submit" class="btn btn-custom w-100">Registrar Despesa</button>
                                         </form>
@@ -433,6 +489,10 @@
                     <!-- Relatórios -->
                     <div class="tab-pane fade" id="relatorios">
                         <h2 class="section-title">Relatórios</h2>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Gere relatórios personalizados por período para analisar o desempenho do seu negócio. Veja projeções de faturamento baseadas nas suas vendas históricas.
+                        </div>
+                        
                         <div class="row mb-4">
                             <div class="col-md-6 mb-3">
                                 <div class="card">
@@ -441,12 +501,14 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label for="data-inicio" class="form-label">Data Início</label>
+                                            <label for="data-inicio" class="form-label">Data Início <i class="bi bi-question-circle help-icon" title="Data inicial do período que deseja analisar"></i></label>
                                             <input type="date" class="form-control" id="data-inicio">
+                                            <div class="form-text">Data inicial do período que deseja analisar</div>
                                         </div>
                                         <div class="mb-3">
-                                            <label for="data-fim" class="form-label">Data Fim</label>
+                                            <label for="data-fim" class="form-label">Data Fim <i class="bi bi-question-circle help-icon" title="Data final do período que deseja analisar"></i></label>
                                             <input type="date" class="form-control" id="data-fim">
+                                            <div class="form-text">Data final do período que deseja analisar</div>
                                         </div>
                                         <button class="btn btn-custom w-100" id="gerar-relatorio">Gerar Relatório</button>
                                     </div>
@@ -500,6 +562,14 @@
                                     <i class="bi bi-info-circle"></i> Para garantir que seus dados não sejam perdidos, 
                                     evite limpar o histórico e os dados de navegação do seu navegador.
                                 </div>
+                                <h5 class="mt-4">Como Usar o Sistema</h5>
+                                <ol>
+                                    <li><strong>Estoque:</strong> Cadastre todos os ingredientes utilizados na produção</li>
+                                    <li><strong>Vendas:</strong> Registre cada venda realizada com detalhes</li>
+                                    <li><strong>Despesas:</strong> Anote todos os gastos do negócio</li>
+                                    <li><strong>Dashboard:</strong> Acompanhe os indicadores do seu negócio</li>
+                                    <li><strong>Relatórios:</strong> Gere análises por período específico</li>
+                                </ol>
                             </div>
                         </div>
                     </div>
