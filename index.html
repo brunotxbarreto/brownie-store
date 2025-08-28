@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BrownieManager - Gestão para Produção de Brownies</title>
+    <title>BrownieManager - Acesso Restrito</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,6 +17,31 @@
         body {
             background-color: #f8f9fa;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--light-brown) 0%, var(--accent-color) 100%);
+            min-height: 100vh;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h2 {
+            color: var(--primary-color);
+            font-weight: bold;
         }
         .navbar-custom {
             background-color: var(--primary-color);
@@ -105,471 +130,515 @@
             border-radius: 4px;
             font-size: 0.9rem;
         }
+        .logout-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
         @media (max-width: 768px) {
             .sidebar {
                 height: auto;
+            }
+            .logout-btn {
+                position: static;
+                margin-top: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 sidebar p-0">
-                <div class="text-center mb-4 mt-3">
-                    <h4><i class="bi bi-star-fill"></i> BrownieManager</h4>
-                </div>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#dashboard" data-bs-toggle="tab">
-                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#estoque" data-bs-toggle="tab">
-                            <i class="bi bi-box-seam me-2"></i>Estoque
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#vendas" data-bs-toggle="tab">
-                            <i class="bi bi-currency-dollar me-2"></i>Vendas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#despesas" data-bs-toggle="tab">
-                            <i class="bi bi-cash-coin me-2"></i>Despesas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#relatorios" data-bs-toggle="tab">
-                            <i class="bi bi-bar-chart me-2"></i>Relatórios
-                        </a>
-                    </li>
-                    <li class="nav-item mt-4">
-                        <a class="nav-link" href="#sobre" data-bs-toggle="tab">
-                            <i class="bi bi-info-circle me-2"></i>Sobre
-                        </a>
-                    </li>
-                </ul>
+    <!-- Tela de Login -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <h2><i class="bi bi-star-fill"></i> BrownieManager</h2>
+                <p class="text-muted">Sistema de Gestão com Acesso Restrito</p>
             </div>
+            <div class="mb-4">
+                <label for="login-password" class="form-label">Senha de Acesso</label>
+                <input type="password" class="form-control" id="login-password" placeholder="Digite a senha">
+                <div class="form-text">Entre em contato com o administrador para obter a senha</div>
+            </div>
+            <button id="login-btn" class="btn btn-custom w-100">Acessar Sistema</button>
+            <div id="login-error" class="alert alert-danger mt-3 d-none">
+                Senha incorreta. Tente novamente.
+            </div>
+        </div>
+    </div>
 
-            <!-- Conteúdo Principal -->
-            <div class="col-md-9 col-lg-10 content">
-                <div class="tab-content">
-                    <!-- Dashboard -->
-                    <div class="tab-pane fade show active" id="dashboard">
-                        <h2 class="section-title">Dashboard</h2>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Esta é a visão geral do seu negócio. Aqui você pode ver rapidamente seu saldo, lucro, vendas e despesas do mês.
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="card dashboard-card">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-wallet2 display-6 mb-2" style="color: var(--primary-color);"></i>
-                                        <h5 class="card-title">Saldo Atual</h5>
-                                        <h3 class="card-text" id="saldo-atual">R$ 0,00</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="card dashboard-card">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-graph-up display-6 mb-2" style="color: var(--primary-color);"></i>
-                                        <h5 class="card-title">Lucro do Mês</h5>
-                                        <h3 class="card-text" id="lucro-mes">R$ 0,00</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="card dashboard-card">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-bag display-6 mb-2" style="color: var(--primary-color);"></i>
-                                        <h5 class="card-title">Vendas do Mês</h5>
-                                        <h3 class="card-text" id="vendas-mes">R$ 0,00</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 col-lg-3 mb-3">
-                                <div class="card dashboard-card">
-                                    <div class="card-body text-center">
-                                        <i class="bi bi-currency-exchange display-6 mb-2" style="color: var(--primary-color);"></i>
-                                        <h5 class="card-title">Despesas do Mês</h5>
-                                        <h3 class="card-text" id="despesas-mes">R$ 0,00</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Fluxo de Caixa (Últimos 7 dias)</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="fluxo-caixa-chart" height="250"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Distribuição de Custos</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <canvas id="custos-chart" height="250"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Últimas Transações</h5>
-                                <div>
-                                    <select class="form-select form-select-sm" id="periodo-select">
-                                        <option value="7">Últimos 7 dias</option>
-                                        <option value="15">Últimos 15 dias</option>
-                                        <option value="30">Últimos 30 dias</option>
-                                        <option value="0">Todo o período</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Data</th>
-                                                <th>Descrição</th>
-                                                <th>Categoria</th>
-                                                <th>Valor</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="transacoes-table">
-                                            <!-- Transações serão inseridas aqui via JavaScript -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Sistema Principal (inicialmente oculto) -->
+    <div id="main-system" class="d-none">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-3 col-lg-2 sidebar p-0">
+                    <div class="text-center mb-4 mt-3">
+                        <h4><i class="bi bi-star-fill"></i> BrownieManager</h4>
+                        <p class="text-muted small">Acesso Restrito</p>
                     </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard" data-bs-toggle="tab">
+                                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#estoque" data-bs-toggle="tab">
+                                <i class="bi bi-box-seam me-2"></i>Estoque
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#vendas" data-bs-toggle="tab">
+                                <i class="bi bi-currency-dollar me-2"></i>Vendas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#despesas" data-bs-toggle="tab">
+                                <i class="bi bi-cash-coin me-2"></i>Despesas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#relatorios" data-bs-toggle="tab">
+                                <i class="bi bi-bar-chart me-2"></i>Relatórios
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link" href="#sobre" data-bs-toggle="tab">
+                                <i class="bi bi-info-circle me-2"></i>Sobre
+                            </a>
+                        </li>
+                    </ul>
+                    <button id="logout-btn" class="btn btn-outline-danger btn-sm logout-btn">
+                        <i class="bi bi-box-arrow-right"></i> Sair
+                    </button>
+                </div>
 
-                    <!-- Estoque -->
-                    <div class="tab-pane fade" id="estoque">
-                        <h2 class="section-title">Gestão de Estoque</h2>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Aqui você pode gerenciar os ingredientes utilizados na produção dos brownies. Registre cada item com sua quantidade e custo.
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Adicionar Ingrediente</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form id="form-ingrediente">
-                                            <div class="mb-3">
-                                                <label for="nome-ingrediente" class="form-label">Nome do Ingrediente <i class="bi bi-question-circle help-icon" title="Ex: Chocolate em pó, farinha de trigo, açúcar, etc."></i></label>
-                                                <input type="text" class="form-control" id="nome-ingrediente" required>
-                                                <div class="form-text">Nome do ingrediente utilizado na produção</div>
-                                                <div class="example-box">Ex: Chocolate em pó 50% cacau</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="quantidade-ingrediente" class="form-label">Quantidade <i class="bi bi-question-circle help-icon" title="Quantidade atual em estoque"></i></label>
-                                                <input type="number" class="form-control" id="quantidade-ingrediente" step="0.01" required>
-                                                <div class="form-text">Quantidade disponível em estoque</div>
-                                                <div class="example-box">Ex: 2.5 (kg, litros, unidades)</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="unidade-ingrediente" class="form-label">Unidade de Medida <i class="bi bi-question-circle help-icon" title="Selecione a unidade de medida correspondente"></i></label>
-                                                <select class="form-select" id="unidade-ingrediente" required>
-                                                    <option value="g">Gramas (g)</option>
-                                                    <option value="kg">Quilogramas (kg)</option>
-                                                    <option value="un">Unidades</option>
-                                                    <option value="ml">Mililitros (ml)</option>
-                                                    <option value="l">Litros (l)</option>
-                                                </select>
-                                                <div class="form-text">Unidade de medida da quantidade</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="custo-ingrediente" class="form-label">Custo Unitário (R$) <i class="bi bi-question-circle help-icon" title="Custo por unidade de medida (ex: preço por kg)"></i></label>
-                                                <input type="number" class="form-control" id="custo-ingrediente" step="0.01" required>
-                                                <div class="form-text">Custo por unidade de medida (ex: preço por kg)</div>
-                                                <div class="example-box">Ex: 12.50 (valor por kg, litro, etc.)</div>
-                                            </div>
-                                            <button type="submit" class="btn btn-custom w-100">Adicionar Ingrediente</button>
-                                        </form>
+                <!-- Conteúdo Principal -->
+                <div class="col-md-9 col-lg-10 content">
+                    <div class="tab-content">
+                        <!-- Dashboard -->
+                        <div class="tab-pane fade show active" id="dashboard">
+                            <h2 class="section-title">Dashboard</h2>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Esta é a visão geral do seu negócio. Aqui você pode ver rapidamente seu saldo, lucro, vendas e despesas do mês.
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card dashboard-card">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-wallet2 display-6 mb-2" style="color: var(--primary-color);"></i>
+                                            <h5 class="card-title">Saldo Atual</h5>
+                                            <h3 class="card-text" id="saldo-atual">R$ 0,00</h3>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Lista de Ingredientes</h5>
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card dashboard-card">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-graph-up display-6 mb-2" style="color: var(--primary-color);"></i>
+                                            <h5 class="card-title">Lucro do Mês</h5>
+                                            <h3 class="card-text" id="lucro-mes">R$ 0,00</h3>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Ingrediente</th>
-                                                        <th>Quantidade</th>
-                                                        <th>Custo Unitário</th>
-                                                        <th>Ações</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="ingredientes-table">
-                                                    <!-- Ingredientes serão inseridos aqui via JavaScript -->
-                                                </tbody>
-                                            </table>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card dashboard-card">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-bag display-6 mb-2" style="color: var(--primary-color);"></i>
+                                            <h5 class="card-title">Vendas do Mês</h5>
+                                            <h3 class="card-text" id="vendas-mes">R$ 0,00</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mb-3">
+                                    <div class="card dashboard-card">
+                                        <div class="card-body text-center">
+                                            <i class="bi bi-currency-exchange display-6 mb-2" style="color: var(--primary-color);"></i>
+                                            <h5 class="card-title">Despesas do Mês</h5>
+                                            <h3 class="card-text" id="despesas-mes">R$ 0,00</h3>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Vendas -->
-                    <div class="tab-pane fade" id="vendas">
-                        <h2 class="section-title">Registro de Vendas</h2>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Registre aqui cada venda realizada. Informe o tipo de brownie, quantidade, preço de venda e custo unitário para calcular automaticamente o lucro.
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Nova Venda</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form id="form-venda">
-                                            <div class="mb-3">
-                                                <label for="data-venda" class="form-label">Data da Venda <i class="bi bi-question-circle help-icon" title="Data em que a venda foi realizada"></i></label>
-                                                <input type="date" class="form-control" id="data-venda" required>
-                                                <div class="form-text">Data em que a venda foi realizada</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="tipo-brownie" class="form-label">Tipo de Brownie <i class="bi bi-question-circle help-icon" title="Nome ou tipo do brownie vendido"></i></label>
-                                                <input type="text" class="form-control" id="tipo-brownie" required>
-                                                <div class="form-text">Nome ou tipo do brownie vendido</div>
-                                                <div class="example-box">Ex: Brownie de chocolate tradicional, Brownie de ninho com nutella, etc.</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="quantidade-venda" class="form-label">Quantidade <i class="bi bi-question-circle help-icon" title="Quantidade de unidades vendidas"></i></label>
-                                                <input type="number" class="form-control" id="quantidade-venda" required>
-                                                <div class="form-text">Número de unidades vendidas</div>
-                                                <div class="example-box">Ex: 12 (unidades)</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="preco-unitario" class="form-label">Preço Unitário (R$) <i class="bi bi-question-circle help-icon" title="Preço de venda de cada unidade"></i></label>
-                                                <input type="number" class="form-control" id="preco-unitario" step="0.01" required>
-                                                <div class="form-text">Preço de venda de cada unidade</div>
-                                                <div class="example-box">Ex: 6.50 (valor cobrado por cada brownie)</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="custo-venda" class="form-label">Custo Unitário (R$) <i class="bi bi-question-circle help-icon" title="Custo de produção de cada unidade"></i></label>
-                                                <input type="number" class="form-control" id="custo-venda" step="0.01" required>
-                                                <div class="form-text">Custo de produção de cada unidade (ingredientes + embalagem)</div>
-                                                <div class="example-box">Ex: 2.80 (custo para produzir cada brownie)</div>
-                                            </div>
-                                            <button type="submit" class="btn btn-custom w-100">Registrar Venda</button>
-                                        </form>
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Fluxo de Caixa (Últimos 7 dias)</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="fluxo-caixa-chart" height="250"></canvas>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Histórico de Vendas</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Data</th>
-                                                        <th>Produto</th>
-                                                        <th>Quantidade</th>
-                                                        <th>Valor Total</th>
-                                                        <th>Lucro</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="vendas-table">
-                                                    <!-- Vendas serão inseridas aqui via JavaScript -->
-                                                </tbody>
-                                            </table>
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Distribuição de Custos</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="custos-chart" height="250"></canvas>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Despesas -->
-                    <div class="tab-pane fade" id="despesas">
-                        <h2 class="section-title">Registro de Despesas</h2>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Registre aqui todas as despesas do seu negócio, desde ingredientes até custos fixos como energia e gás. Use categorias para organizar melhor seus gastos.
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Nova Despesa</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form id="form-despesa">
-                                            <div class="mb-3">
-                                                <label for="data-despesa" class="form-label">Data da Despesa <i class="bi bi-question-circle help-icon" title="Data em que a despesa foi realizada"></i></label>
-                                                <input type="date" class="form-control" id="data-despesa" required>
-                                                <div class="form-text">Data em que a despesa foi realizada</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="descricao-despesa" class="form-label">Descrição <i class="bi bi-question-circle help-icon" title="Descrição detalhada da despesa"></i></label>
-                                                <input type="text" class="form-control" id="descricao-despesa" required>
-                                                <div class="form-text">Descrição detalhada da despesa</div>
-                                                <div class="example-box">Ex: Compra de chocolate 50% cacau, Pagamento de conta de luz, etc.</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="categoria-despesa" class="form-label">Categoria <i class="bi bi-question-circle help-icon" title="Categoria para organizar suas despesas"></i></label>
-                                                <select class="form-select" id="categoria-despesa" required>
-                                                    <option value="ingredientes">Ingredientes</option>
-                                                    <option value="embalagem">Embalagem</option>
-                                                    <option value="energia">Energia</option>
-                                                    <option value="gas">Gás</option>
-                                                    <option value="outros">Outros</option>
-                                                </select>
-                                                <div class="form-text">Categoria para organizar suas despesas</div>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="valor-despesa" class="form-label">Valor (R$) <i class="bi bi-question-circle help-icon" title="Valor total da despesa"></i></label>
-                                                <input type="number" class="form-control" id="valor-despesa" step="0.01" required>
-                                                <div class="form-text">Valor total da despesa</div>
-                                                <div class="example-box">Ex: 45.90 (valor total pago)</div>
-                                            </div>
-                                            <button type="submit" class="btn btn-custom w-100">Registrar Despesa</button>
-                                        </form>
+                            <div class="card">
+                                <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Últimas Transações</h5>
+                                    <div>
+                                        <select class="form-select form-select-sm" id="periodo-select">
+                                            <option value="7">Últimos 7 dias</option>
+                                            <option value="15">Últimos 15 dias</option>
+                                            <option value="30">Últimos 30 dias</option>
+                                            <option value="0">Todo o período</option>
+                                        </select>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Histórico de Despesas</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Data</th>
-                                                        <th>Descrição</th>
-                                                        <th>Categoria</th>
-                                                        <th>Valor</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="despesas-table">
-                                                    <!-- Despesas serão inseridas aqui via JavaScript -->
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Data</th>
+                                                    <th>Descrição</th>
+                                                    <th>Categoria</th>
+                                                    <th>Valor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="transacoes-table">
+                                                <!-- Transações serão inseridas aqui via JavaScript -->
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Relatórios -->
-                    <div class="tab-pane fade" id="relatorios">
-                        <h2 class="section-title">Relatórios</h2>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Gere relatórios personalizados por período para analisar o desempenho do seu negócio. Veja projeções de faturamento baseadas nas suas vendas históricas.
-                        </div>
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Filtros</h5>
+                        <!-- Estoque -->
+                        <div class="tab-pane fade" id="estoque">
+                            <h2 class="section-title">Gestão de Estoque</h2>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Aqui você pode gerenciar os ingredientes utilizados na produção dos brownies. Registre cada item com sua quantidade e custo.
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Adicionar Ingrediente</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="form-ingrediente">
+                                                <div class="mb-3">
+                                                    <label for="nome-ingrediente" class="form-label">Nome do Ingrediente <i class="bi bi-question-circle help-icon" title="Ex: Chocolate em pó, farinha de trigo, açúcar, etc."></i></label>
+                                                    <input type="text" class="form-control" id="nome-ingrediente" required>
+                                                    <div class="form-text">Nome do ingrediente utilizado na produção</div>
+                                                    <div class="example-box">Ex: Chocolate em pó 50% cacau</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="quantidade-ingrediente" class="form-label">Quantidade <i class="bi bi-question-circle help-icon" title="Quantidade atual em estoque"></i></label>
+                                                    <input type="number" class="form-control" id="quantidade-ingrediente" step="0.01" required>
+                                                    <div class="form-text">Quantidade disponível em estoque</div>
+                                                    <div class="example-box">Ex: 2.5 (kg, litros, unidades)</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="unidade-ingrediente" class="form-label">Unidade de Medida <i class="bi bi-question-circle help-icon" title="Selecione a unidade de medida correspondente"></i></label>
+                                                    <select class="form-select" id="unidade-ingrediente" required>
+                                                        <option value="g">Gramas (g)</option>
+                                                        <option value="kg">Quilogramas (kg)</option>
+                                                        <option value="un">Unidades</option>
+                                                        <option value="ml">Mililitros (ml)</option>
+                                                        <option value="l">Litros (l)</option>
+                                                    </select>
+                                                    <div class="form-text">Unidade de medida da quantidade</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="custo-ingrediente" class="form-label">Custo Unitário (R$) <i class="bi bi-question-circle help-icon" title="Custo por unidade de medida (ex: preço por kg)"></i></label>
+                                                    <input type="number" class="form-control" id="custo-ingrediente" step="0.01" required>
+                                                    <div class="form-text">Custo por unidade de medida (ex: preço por kg)</div>
+                                                    <div class="example-box">Ex: 12.50 (valor por kg, litro, etc.)</div>
+                                                </div>
+                                                <button type="submit" class="btn btn-custom w-100">Adicionar Ingrediente</button>
+                                            </form>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label for="data-inicio" class="form-label">Data Início <i class="bi bi-question-circle help-icon" title="Data inicial do período que deseja analisar"></i></label>
-                                            <input type="date" class="form-control" id="data-inicio">
-                                            <div class="form-text">Data inicial do período que deseja analisar</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Lista de Ingredientes</h5>
                                         </div>
-                                        <div class="mb-3">
-                                            <label for="data-fim" class="form-label">Data Fim <i class="bi bi-question-circle help-icon" title="Data final do período que deseja analisar"></i></label>
-                                            <input type="date" class="form-control" id="data-fim">
-                                            <div class="form-text">Data final do período que deseja analisar</div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Ingrediente</th>
+                                                            <th>Quantidade</th>
+                                                            <th>Custo Unitário</th>
+                                                            <th>Ações</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="ingredientes-table">
+                                                        <!-- Ingredientes serão inseridos aqui via JavaScript -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                        <button class="btn btn-custom w-100" id="gerar-relatorio">Gerar Relatório</button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="card">
-                                    <div class="card-header card-header-custom">
-                                        <h5 class="mb-0">Resumo do Período</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="resumo-periodo">
-                                            <p>Selecione um período para gerar o relatório.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                        <div class="card mb-4">
-                            <div class="card-header card-header-custom">
-                                <h5 class="mb-0">Projeção de Faturamento</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="projecao-chart" height="100"></canvas>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Sobre -->
-                    <div class="tab-pane fade" id="sobre">
-                        <h2 class="section-title">Sobre o BrownieManager</h2>
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Sistema de Gestão para Produção e Venda de Brownies</h5>
-                                <p class="card-text">
-                                    Este sistema foi desenvolvido para atender às necessidades de pequenos empreendedores 
-                                    do ramo de produção e venda de brownies, oferecendo ferramentas para:
-                                </p>
-                                <ul>
-                                    <li>Controle de estoque de ingredientes</li>
-                                    <li>Registro de vendas e despesas</li>
-                                    <li>Cálculo de custos, margem de lucro e lucro líquido</li>
-                                    <li>Gestão de fluxo de caixa</li>
-                                    <li>Projeções de faturamento e custos</li>
-                                </ul>
-                                <p class="card-text">
-                                    <strong>Armazenamento de dados:</strong> Todas as informações ficam salvas localmente 
-                                    no seu navegador, não sendo necessária conexão com a internet após o carregamento inicial.
-                                </p>
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle"></i> Para garantir que seus dados não sejam perdidos, 
-                                    evite limpar o histórico e os dados de navegação do seu navegador.
+                        <!-- Vendas -->
+                        <div class="tab-pane fade" id="vendas">
+                            <h2 class="section-title">Registro de Vendas</h2>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Registre aqui cada venda realizada. Informe o tipo de brownie, quantidade, preço de venda e custo unitário para calcular automaticamente o lucro.
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Nova Venda</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="form-venda">
+                                                <div class="mb-3">
+                                                    <label for="data-venda" class="form-label">Data da Venda <i class="bi bi-question-circle help-icon" title="Data em que a venda foi realizada"></i></label>
+                                                    <input type="date" class="form-control" id="data-venda" required>
+                                                    <div class="form-text">Data em que a venda foi realizada</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="tipo-brownie" class="form-label">Tipo de Brownie <i class="bi bi-question-circle help-icon" title="Nome ou tipo do brownie vendido"></i></label>
+                                                    <input type="text" class="form-control" id="tipo-brownie" required>
+                                                    <div class="form-text">Nome ou tipo do brownie vendido</div>
+                                                    <div class="example-box">Ex: Brownie de chocolate tradicional, Brownie de ninho com nutella, etc.</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="quantidade-venda" class="form-label">Quantidade <i class="bi bi-question-circle help-icon" title="Quantidade de unidades vendidas"></i></label>
+                                                    <input type="number" class="form-control" id="quantidade-venda" required>
+                                                    <div class="form-text">Número de unidades vendidas</div>
+                                                    <div class="example-box">Ex: 12 (unidades)</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="preco-unitario" class="form-label">Preço Unitário (R$) <i class="bi bi-question-circle help-icon" title="Preço de venda de cada unitário"></i></label>
+                                                    <input type="number" class="form-control" id="preco-unitario" step="0.01" required>
+                                                    <div class="form-text">Preço de venda de cada unitário</div>
+                                                    <div class="example-box">Ex: 6.50 (valor cobrado por cada brownie)</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="custo-venda" class="form-label">Custo Unitário (R$) <i class="bi bi-question-circle help-icon" title="Custo de produção de cada unitário"></i></label>
+                                                    <input type="number" class="form-control" id="custo-venda" step="0.01" required>
+                                                    <div class="form-text">Custo de produção de cada unitário (ingredientes + embalagem)</div>
+                                                    <div class="example-box">Ex: 2.80 (custo para produzir cada brownie)</div>
+                                                </div>
+                                                <button type="submit" class="btn btn-custom w-100">Registrar Venda</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h5 class="mt-4">Como Usar o Sistema</h5>
-                                <ol>
-                                    <li><strong>Estoque:</strong> Cadastre todos os ingredientes utilizados na produção</li>
-                                    <li><strong>Vendas:</strong> Registre cada venda realizada com detalhes</li>
-                                    <li><strong>Despesas:</strong> Anote todos os gastos do negócio</li>
-                                    <li><strong>Dashboard:</strong> Acompanhe os indicadores do seu negócio</li>
-                                    <li><strong>Relatórios:</strong> Gere análises por período específico</li>
-                                </ol>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Histórico de Vendas</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Data</th>
+                                                            <th>Produto</th>
+                                                            <th>Quantidade</th>
+                                                            <th>Valor Total</th>
+                                                            <th>Lucro</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="vendas-table">
+                                                        <!-- Vendas serão inseridas aqui via JavaScript -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Despesas -->
+                        <div class="tab-pane fade" id="despesas">
+                            <h2 class="section-title">Registro de Despesas</h2>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Registre aqui todas as despesas do seu negócio, desde ingredientes até custos fixos como energia e gás. Use categorias para organizar melhor seus gastos.
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Nova Despesa</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="form-despesa">
+                                                <div class="mb-3">
+                                                    <label for="data-despesa" class="form-label">Data da Despesa <i class="bi bi-question-circle help-icon" title="Data em que a despesa foi realizada"></i></label>
+                                                    <input type="date" class="form-control" id="data-despesa" required>
+                                                    <div class="form-text">Data em que a despesa foi realizada</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="descricao-despesa" class="form-label">Descrição <i class="bi bi-question-circle help-icon" title="Descrição detalhada da despesa"></i></label>
+                                                    <input type="text" class="form-control" id="descricao-despesa" required>
+                                                    <div class="form-text">Descrição detalhada da despesa</div>
+                                                    <div class="example-box">Ex: Compra de chocolate 50% cacau, Pagamento de conta de luz, etc.</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="categoria-despesa" class="form-label">Categoria <i class="bi bi-question-circle help-icon" title="Categoria para organizar suas despesas"></i></label>
+                                                    <select class="form-select" id="categoria-despesa" required>
+                                                        <option value="ingredientes">Ingredientes</option>
+                                                        <option value="embalagem">Embalagem</option>
+                                                        <option value="energia">Energia</option>
+                                                        <option value="gas">Gás</option>
+                                                        <option value="outros">Outros</option>
+                                                    </select>
+                                                    <div class="form-text">Categoria para organizar suas despesas</div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="valor-despesa" class="form-label">Valor (R$) <i class="bi bi-question-circle help-icon" title="Valor total da despesa"></i></label>
+                                                    <input type="number" class="form-control" id="valor-despesa" step="0.01" required>
+                                                    <div class="form-text">Valor total da despesa</div>
+                                                    <div class="example-box">Ex: 45.90 (valor total pago)</div>
+                                                </div>
+                                                <button type="submit" class="btn btn-custom w-100">Registrar Despesa</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Histórico de Despesas</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Data</th>
+                                                            <th>Descrição</th>
+                                                            <th>Categoria</th>
+                                                            <th>Valor</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="despesas-table">
+                                                        <!-- Despesas serão inseridas aqui via JavaScript -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Relatórios -->
+                        <div class="tab-pane fade" id="relatorios">
+                            <h2 class="section-title">Relatórios</h2>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> Gere relatórios personalizados por período para analisar o desempenho do seu negócio. Veja projeções de faturamento baseadas nas suas vendas históricas.
+                            </div>
+                            
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Filtros</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label for="data-inicio" class="form-label">Data Início <i class="bi bi-question-circle help-icon" title="Data inicial do período que deseja analisar"></i></label>
+                                                <input type="date" class="form-control" id="data-inicio">
+                                                <div class="form-text">Data inicial do período que deseja analisar</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="data-fim" class="form-label">Data Fim <i class="bi bi-question-circle help-icon" title="Data final do período que deseja analisar"></i></label>
+                                                <input type="date" class="form-control" id="data-fim">
+                                                <div class="form-text">Data final do período que deseja analisar</div>
+                                            </div>
+                                            <button class="btn btn-custom w-100" id="gerar-relatorio">Gerar Relatório</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-header card-header-custom">
+                                            <h5 class="mb-0">Resumo do Período</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="resumo-periodo">
+                                                <p>Selecione um período para gerar o relatório.</p>
+                                            </div>
+                                            <div class="mt-3">
+                                                <button class="btn btn-outline-secondary btn-sm" id="export-data">
+                                                    <i class="bi bi-download"></i> Exportar Dados
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mb-4">
+                                <div class="card-header card-header-custom">
+                                    <h5 class="mb-0">Projeção de Faturamento</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="projecao-chart" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sobre -->
+                        <div class="tab-pane fade" id="sobre">
+                            <h2 class="section-title">Sobre o BrownieManager</h2>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Sistema de Gestão para Produção e Venda de Brownies</h5>
+                                    <p class="card-text">
+                                        Este sistema foi desenvolvido para atender às necessidades de pequenos empreendedores 
+                                        do ramo de produção e venda de brownies, oferecendo ferramentas para:
+                                    </p>
+                                    <ul>
+                                        <li>Controle de estoque de ingredientes</li>
+                                        <li>Registro de vendas e despesas</li>
+                                        <li>Cálculo de custos, margem de lucro e lucro líquido</li>
+                                        <li>Gestão de fluxo de caixa</li>
+                                        <li>Projeções de faturamento e custos</li>
+                                    </ul>
+                                    <p class="card-text">
+                                        <strong>Armazenamento de dados:</strong> Todas as informações ficam salvas localmente 
+                                        no seu navegador, não sendo necessária conexão com a internet após o carregamento inicial.
+                                    </p>
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> Para garantir que seus dados não sejam perdidos, 
+                                        evite limpar o histórico e os dados de navegação do seu navegador.
+                                    </div>
+                                    <h5 class="mt-4">Como Usar o Sistema</h5>
+                                    <ol>
+                                        <li><strong>Estoque:</strong> Cadastre todos os ingredientes utilizados na produção</li>
+                                        <li><strong>Vendas:</strong> Registre cada venda realizada com detalhes</li>
+                                        <li><strong>Despesas:</strong> Anote todos os gastos do negócio</li>
+                                        <li><strong>Dashboard:</strong> Acompanhe os indicadores do seu negócio</li>
+                                        <li><strong>Relatórios:</strong> Gere análises por período específico</li>
+                                    </ol>
+                                    <div class="alert alert-warning mt-3">
+                                        <i class="bi bi-shield-lock"></i> <strong>Acesso Restrito:</strong> Este sistema está protegido por senha para garantir que apenas pessoas autorizadas tenham acesso aos dados do negócio.
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -580,6 +649,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // SENHA DE ACESSO - Altere para a senha que desejar
+        const SYSTEM_PASSWORD = "brownie123";
+        
         // Inicialização dos dados
         let estoque = JSON.parse(localStorage.getItem('estoque')) || [];
         let vendas = JSON.parse(localStorage.getItem('vendas')) || [];
@@ -587,13 +659,60 @@
         
         // Inicialização da data atual no formato YYYY-MM-DD
         const hoje = new Date();
-        document.getElementById('data-venda').valueAsDate = hoje;
-        document.getElementById('data-despesa').valueAsDate = hoje;
         
         // Formatador de moeda
         const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
+        });
+        
+        // Controle de acesso
+        document.getElementById('login-btn').addEventListener('click', function() {
+            const password = document.getElementById('login-password').value;
+            if (password === SYSTEM_PASSWORD) {
+                document.getElementById('login-screen').classList.add('d-none');
+                document.getElementById('main-system').classList.remove('d-none');
+                
+                // Inicializar o sistema
+                if (document.getElementById('data-venda')) {
+                    document.getElementById('data-venda').valueAsDate = hoje;
+                }
+                if (document.getElementById('data-despesa')) {
+                    document.getElementById('data-despesa').valueAsDate = hoje;
+                }
+                
+                atualizarDashboard();
+                atualizarTabelaIngredientes();
+                atualizarTabelaVendas();
+                atualizarTabelaDespesas();
+            } else {
+                document.getElementById('login-error').classList.remove('d-none');
+            }
+        });
+        
+        // Logout
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            document.getElementById('login-screen').classList.remove('d-none');
+            document.getElementById('main-system').classList.add('d-none');
+            document.getElementById('login-password').value = '';
+            document.getElementById('login-error').classList.add('d-none');
+        });
+        
+        // Exportar dados
+        document.getElementById('export-data')?.addEventListener('click', function() {
+            const dataStr = JSON.stringify({
+                estoque: estoque,
+                vendas: vendas,
+                despesas: despesas
+            });
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `backup-brownie-manager-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
         });
         
         // Funções de utilidade
@@ -620,6 +739,8 @@
         }
         
         function atualizarDashboard() {
+            if (!document.getElementById('saldo-atual')) return;
+            
             document.getElementById('saldo-atual').textContent = formatadorMoeda.format(calcularSaldo());
             document.getElementById('lucro-mes').textContent = formatadorMoeda.format(calcularLucro());
             document.getElementById('vendas-mes').textContent = formatadorMoeda.format(calcularTotalVendas());
@@ -631,6 +752,8 @@
         
         function atualizarTabelaTransacoes() {
             const tabela = document.getElementById('transacoes-table');
+            if (!tabela) return;
+            
             const periodo = parseInt(document.getElementById('periodo-select').value);
             
             // Combinar vendas e despesas em transações
@@ -701,49 +824,51 @@
                 saldos.push(vendasDia - despesasDia);
             }
             
-            const ctxFluxo = document.getElementById('fluxo-caixa-chart').getContext('2d');
-            if (window.fluxoCaixaChart) {
-                window.fluxoCaixaChart.destroy();
-            }
-            window.fluxoCaixaChart = new Chart(ctxFluxo, {
-                type: 'line',
-                data: {
-                    labels: datas,
-                    datasets: [{
-                        label: 'Saldo Diário',
-                        data: saldos,
-                        borderColor: '#8B4513',
-                        backgroundColor: 'rgba(139, 69, 19, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return formatadorMoeda.format(context.raw);
+            const ctxFluxo = document.getElementById('fluxo-caixa-chart');
+            if (ctxFluxo) {
+                if (window.fluxoCaixaChart) {
+                    window.fluxoCaixaChart.destroy();
+                }
+                window.fluxoCaixaChart = new Chart(ctxFluxo, {
+                    type: 'line',
+                    data: {
+                        labels: datas,
+                        datasets: [{
+                            label: 'Saldo Diário',
+                            data: saldos,
+                            borderColor: '#8B4513',
+                            backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return formatadorMoeda.format(context.raw);
+                                    }
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return formatadorMoeda.format(value);
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatadorMoeda.format(value);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
             
             // Dados para o gráfico de distribuição de custos
             const categorias = {};
@@ -754,44 +879,48 @@
                 categorias[despesa.categoria] += despesa.valor;
             });
             
-            const ctxCustos = document.getElementById('custos-chart').getContext('2d');
-            if (window.custosChart) {
-                window.custosChart.destroy();
-            }
-            window.custosChart = new Chart(ctxCustos, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(categorias),
-                    datasets: [{
-                        data: Object.values(categorias),
-                        backgroundColor: [
-                            '#8B4513', '#D2691E', '#F4A460', '#DEB887', '#CD853F'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.raw;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${formatadorMoeda.format(value)} (${percentage}%)`;
+            const ctxCustos = document.getElementById('custos-chart');
+            if (ctxCustos) {
+                if (window.custosChart) {
+                    window.custosChart.destroy();
+                }
+                window.custosChart = new Chart(ctxCustos, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categorias),
+                        datasets: [{
+                            data: Object.values(categorias),
+                            backgroundColor: [
+                                '#8B4513', '#D2691E', '#F4A460', '#DEB887', '#CD853F'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.raw;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${formatadorMoeda.format(value)} (${percentage}%)`;
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         }
         
         function atualizarTabelaIngredientes() {
             const tabela = document.getElementById('ingredientes-table');
+            if (!tabela) return;
+            
             tabela.innerHTML = '';
             
             estoque.forEach((ingrediente, index) => {
@@ -812,6 +941,8 @@
         
         function atualizarTabelaVendas() {
             const tabela = document.getElementById('vendas-table');
+            if (!tabela) return;
+            
             tabela.innerHTML = '';
             
             // Ordenar vendas por data (mais recente primeiro)
@@ -836,6 +967,8 @@
         
         function atualizarTabelaDespesas() {
             const tabela = document.getElementById('despesas-table');
+            if (!tabela) return;
+            
             tabela.innerHTML = '';
             
             // Ordenar despesas por data (mais recente primeiro)
@@ -862,7 +995,7 @@
         }
         
         // Event Listeners
-        document.getElementById('form-ingrediente').addEventListener('submit', function(e) {
+        document.getElementById('form-ingrediente')?.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const novoIngrediente = {
@@ -881,7 +1014,7 @@
             alert('Ingrediente adicionado com sucesso!');
         });
         
-        document.getElementById('form-venda').addEventListener('submit', function(e) {
+        document.getElementById('form-venda')?.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const novaVenda = {
@@ -903,7 +1036,7 @@
             alert('Venda registrada com sucesso!');
         });
         
-        document.getElementById('form-despesa').addEventListener('submit', function(e) {
+        document.getElementById('form-despesa')?.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const novaDespesa = {
@@ -924,9 +1057,9 @@
             alert('Despesa registrada com sucesso!');
         });
         
-        document.getElementById('periodo-select').addEventListener('change', atualizarDashboard);
+        document.getElementById('periodo-select')?.addEventListener('change', atualizarDashboard);
         
-        document.getElementById('gerar-relatorio').addEventListener('click', function() {
+        document.getElementById('gerar-relatorio')?.addEventListener('click', function() {
             const dataInicio = document.getElementById('data-inicio').value;
             const dataFim = document.getElementById('data-fim').value;
             
@@ -960,72 +1093,66 @@
             `;
             
             // Atualizar gráfico de projeção
-            const ctxProjecao = document.getElementById('projecao-chart').getContext('2d');
-            if (window.projecaoChart) {
-                window.projecaoChart.destroy();
-            }
-            
-            // Simular projeção baseada na média diária
-            const diasNoPeriodo = Math.ceil((new Date(dataFim) - new Date(dataInicio)) / (1000 * 60 * 60 * 24)) + 1;
-            const mediaDiariaVendas = totalVendas / diasNoPeriodo;
-            
-            const datasProjecao = [];
-            const valoresProjecao = [];
-            
-            for (let i = 1; i <= 30; i++) {
-                const data = new Date();
-                data.setDate(data.getDate() + i);
-                datasProjecao.push(formatarData(data.toISOString().split('T')[0]));
-                valoresProjecao.push(mediaDiariaVendas * i);
-            }
-            
-            window.projecaoChart = new Chart(ctxProjecao, {
-                type: 'line',
-                data: {
-                    labels: datasProjecao,
-                    datasets: [{
-                        label: 'Projeção de Faturamento (próximos 30 dias)',
-                        data: valoresProjecao,
-                        borderColor: '#8B4513',
-                        backgroundColor: 'rgba(139, 69, 19, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return formatadorMoeda.format(context.raw);
+            const ctxProjecao = document.getElementById('projecao-chart');
+            if (ctxProjecao) {
+                if (window.projecaoChart) {
+                    window.projecaoChart.destroy();
+                }
+                
+                // Simular projeção baseada na média diária
+                const diasNoPeriodo = Math.ceil((new Date(dataFim) - new Date(dataInicio)) / (1000 * 60 * 60 * 24)) + 1;
+                const mediaDiariaVendas = totalVendas / diasNoPeriodo;
+                
+                const datasProjecao = [];
+                const valoresProjecao = [];
+                
+                for (let i = 1; i <= 30; i++) {
+                    const data = new Date();
+                    data.setDate(data.getDate() + i);
+                    datasProjecao.push(formatarData(data.toISOString().split('T')[0]));
+                    valoresProjecao.push(mediaDiariaVendas * i);
+                }
+                
+                window.projecaoChart = new Chart(ctxProjecao, {
+                    type: 'line',
+                    data: {
+                        labels: datasProjecao,
+                        datasets: [{
+                            label: 'Projeção de Faturamento (próximos 30 dias)',
+                            data: valoresProjecao,
+                            borderColor: '#8B4513',
+                            backgroundColor: 'rgba(139, 69, 19, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return formatadorMoeda.format(context.raw);
+                                    }
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return formatadorMoeda.format(value);
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return formatadorMoeda.format(value);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-        });
-        
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
-            atualizarDashboard();
-            atualizarTabelaIngredientes();
-            atualizarTabelaVendas();
-            atualizarTabelaDespesas();
+                });
+            }
         });
     </script>
 </body>
